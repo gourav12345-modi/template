@@ -1,7 +1,11 @@
 import dotenv from 'dotenv';
+import './types/custom'
 import express from 'express';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
+import ownerRoutes from './routes/owner.routes';
+import restaurantRoutes from './routes/restaurant.routes';
+import errorHandler from './middlewares/errorHandler.middleware';
 
 dotenv.config()
 
@@ -18,7 +22,7 @@ if (process.env.NODE_ENV=='production') {
 }
 
 const app = express();
-const DBURL = process.env.DBURL || 'mongodb://localhost:27017/ensolax';
+const DBURL = process.env.DBURL || 'mongodb://localhost:27017/dining';
 const PORT = process.env.PORT || 1300;
 
 
@@ -50,9 +54,12 @@ connection.on("error", function(err) {
   return console.log(err);
 });
 
-app.get('/', (req, res) => {
+app.use('/api/owner', ownerRoutes)
+app.use('/api/restaurant', restaurantRoutes)
+app.get('/api/status', (req, res) => {
   res.json({ message: 'ok' });
 });
+app.use(errorHandler)
 
 app.listen(PORT, () => {
   console.log(`listing on http://localhost:${PORT}`);
